@@ -75,6 +75,11 @@ def __mock_data_requests(requests_mock, test_data_file: str):
         json=test_data["groups"]["REG_GROUP_HOT_WATER"],
     )
     requests_mock.get(
+        f"{THERMIA_TEST_URL}/api/v1/Registers/Installations/test-id/Groups/REG_GROUP_COOLING",
+        # The API returns an empty list for a group the heat pump doesn't have
+        json=test_data["groups"].get("REG_GROUP_COOLING", []),
+    )
+    requests_mock.get(
         f"{THERMIA_TEST_URL}/api/v1/installation/test-id/events?onlyActiveAlarms=false",
         json=[],
     )

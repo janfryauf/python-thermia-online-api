@@ -96,6 +96,7 @@ print("Operational Times")
 print("Compressor Operational Time: " + str(heat_pump.compressor_operational_time))
 print("Heating Operational Time: " + str(heat_pump.heating_operational_time))
 print("Hot Water Operational Time: " + str(heat_pump.hot_water_operational_time))
+print("Cooling Operational Time: " + str(heat_pump.cooling_operational_time))
 print(
     "Auxiliary Heater 1 Operational Time: "
     + str(heat_pump.auxiliary_heater_1_operational_time)
@@ -129,6 +130,20 @@ print("\n")
 print("Hot Water data")
 print("Hot Water Switch State: " + str(heat_pump.hot_water_switch_state))
 print("Hot Water Boost Switch State: " + str(heat_pump.hot_water_boost_switch_state))
+
+print("\n")
+
+print("Cooling data")
+print("Cooling Switch State: " + str(heat_pump.cooling_switch_state))
+print("Cooling Temperature: " + str(heat_pump.cooling_temperature))
+print(
+    "Cooling Temperature Range: "
+    + str(heat_pump.cooling_min_temperature_value)
+    + " - "
+    + str(heat_pump.cooling_max_temperature_value)
+    + ", step "
+    + str(heat_pump.cooling_temperature_step)
+)
 
 print("\n")
 
