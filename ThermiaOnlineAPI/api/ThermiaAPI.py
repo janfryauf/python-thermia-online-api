@@ -9,6 +9,7 @@ import hashlib
 from typing import Dict, Optional
 
 from ThermiaOnlineAPI.const import (
+    REG_GROUP_COOLING,
     REG_GROUP_HOT_WATER,
     REG_GROUP_OPERATIONAL_OPERATION,
     REG_GROUP_OPERATIONAL_STATUS,
@@ -281,6 +282,9 @@ class ThermiaAPI:
 
     def get__group_operational_time(self, device_id: str):
         return self.__get_register_group(device_id, REG_GROUP_OPERATIONAL_TIME)
+
+    def get__group_cooling(self, device_id: str):
+        return self.__get_register_group(device_id, REG_GROUP_COOLING)
 
     def get_group_operational_operation(self, device: ThermiaHeatPump):
         return self.__get_group_operational_operation_from_register_group(

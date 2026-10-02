@@ -22,6 +22,7 @@ REG_GROUP_OPERATIONAL_STATUS = "REG_GROUP_OPERATIONAL_STATUS"
 REG_GROUP_OPERATIONAL_TIME = "REG_GROUP_OPERATIONAL_TIME"
 REG_GROUP_OPERATIONAL_OPERATION = "REG_GROUP_OPERATIONAL_OPERATION"
 REG_GROUP_HOT_WATER = "REG_GROUP_HOT_WATER"
+REG_GROUP_COOLING = "REG_GROUP_COOLING"
 
 ###############################################################################
 # Temperature registers
@@ -88,6 +89,13 @@ REG_HOT_WATER_STATUS = "REG_HOT_WATER_STATUS"
 REG__HOT_WATER_BOOST = "REG__HOT_WATER_BOOST"
 
 ###############################################################################
+# Cooling registers
+###############################################################################
+
+REG_ACTIVATE_COOLING = "REG_ACTIVATE_COOLING"
+REG__COOLING_DESIRED_TEMP = "REG__COOLING_DESIRED_TEMP"
+
+###############################################################################
 # Operational time registers
 ###############################################################################
 
@@ -97,6 +105,7 @@ REG_OPER_TIME_IMM3 = "REG_OPER_TIME_IMM3"  # Auxiliary heater 3
 REG_OPER_TIME_COMPRESSOR = "REG_OPER_TIME_COMPRESSOR"
 REG_OPER_TIME_HEATING = "REG_OPER_TIME_HEATING"
 REG_OPER_TIME_HOT_WATER = "REG_OPER_TIME_HOT_WATER"
+REG_OPER_TIME_COOLING = "REG_OPER_TIME_COOLING"
 
 ###############################################################################
 # Other

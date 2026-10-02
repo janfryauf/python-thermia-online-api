@@ -7,6 +7,8 @@ from ..utils.utils import pretty_json_string_except
 from typing import TYPE_CHECKING, Dict, List, Optional
 
 from ThermiaOnlineAPI.const import (
+    REG_ACTIVATE_COOLING,
+    REG__COOLING_DESIRED_TEMP,
     REG_BRINE_IN,
     REG_BRINE_OUT,
     REG_ACTUAL_POOL_TEMP,
@@ -21,6 +23,7 @@ from ThermiaOnlineAPI.const import (
     REG_OPER_DATA_RETURN,
     REG_OPER_DATA_SUPPLY_MA_SA,
     REG_OPER_TIME_COMPRESSOR,
+    REG_OPER_TIME_COOLING,
     REG_OPER_TIME_HEATING,
     REG_OPER_TIME_HOT_WATER,
     REG_OPER_TIME_IMM1,
@@ -77,6 +80,7 @@ class ThermiaHeatPump:
             "hot_water_switch": None,
             "hot_water_boost_switch": None,
         }
+        self.__group_cooling = None
 
         self.__alarms = None
         self.__historical_data_registers_map = None
@@ -120,6 +124,7 @@ class ThermiaHeatPump:
             self.__api_interface.get_group_operational_operation_from_status(self)
         )
         self.__group_hot_water = self.__api_interface.get_group_hot_water(self)
+        self.__group_cooling = self.__api_interface.get__group_cooling(self.__device_id)
 
         self.__alarms = self.__api_interface.get_all_alarms(self.__device_id)
 
@@ -197,6 +202,68 @@ class ThermiaHeatPump:
             state  # update local state before refetching data
         )
         self.__api_interface.set_hot_water_boost_switch_state(self, state)
+        self.update_data()
+
+    def set_cooling_switch_state(self, state: int):  # 0 - off, 1 - on
+        self._LOGGER.info("Setting cooling switch to " + str(state))
+
+        cooling_switch_data = self.__get_cooling_switch_data()
+
+        if cooling_switch_data is None or cooling_switch_data["isReadOnly"]:
+            self._LOGGER.error("Cooling switch not available")
+            return
+
+        if state not in (0, 1):
+            self._LOGGER.error("Invalid cooling switch state: " + str(state))
+            return
+
+        self.__api_interface.set_register_value(self, cooling_switch_data["id"], state)
+        self.update_data()
+
+    def set_cooling_temperature(self, temperature: int):
+        self._LOGGER.info("Setting cooling temperature to " + str(temperature))
+
+        cooling_temperature_data = self.__get_cooling_data_by_register_name(
+            REG__COOLING_DESIRED_TEMP
+        )
+
+        if cooling_temperature_data is None or cooling_temperature_data["isReadOnly"]:
+            self._LOGGER.error("Cooling temperature not available")
+            return
+
+        min_value = cooling_temperature_data["minValue"]
+        max_value = cooling_temperature_data["maxValue"]
+        step = cooling_temperature_data["step"]
+
+        if min_value is None or max_value is None:
+            self._LOGGER.error(
+                "Cooling temperature limits not available, not setting temperature"
+            )
+            return
+
+        if temperature < min_value or temperature > max_value:
+            self._LOGGER.error(
+                "Cooling temperature "
+                + str(temperature)
+                + " is outside of the allowed range "
+                + str(min_value)
+                + " - "
+                + str(max_value)
+            )
+            return
+
+        if step and not round((temperature - min_value) / step, 6).is_integer():
+            self._LOGGER.error(
+                "Cooling temperature "
+                + str(temperature)
+                + " is not a multiple of the step "
+                + str(step)
+            )
+            return
+
+        self.__api_interface.set_register_value(
+            self, cooling_temperature_data["id"], temperature
+        )
         self.update_data()
 
     def get_all_available_register_groups(self):
@@ -305,6 +372,32 @@ class ThermiaHeatPump:
         return self.__get_data_from_group_by_register_name(
             self.__group_operational_time, register_name
         )
+
+    def __get_cooling_data_by_register_name(
+        self, register_name: str  # COOLING_REGISTERS
+    ):
+        if self.__group_cooling is None:
+            return None
+
+        return self.__get_data_from_group_by_register_name(
+            self.__group_cooling, register_name
+        )
+
+    def __get_cooling_switch_data(self):
+        if self.__group_cooling is None:
+            return None
+
+        data = [
+            d for d in self.__group_cooling if d["registerName"] == REG_ACTIVATE_COOLING
+        ]
+
+        # Only a register with exactly the states 0 (off) and 1 (on) is a switch
+        if len(data) != 1 or sorted(
+            value_name.get("value") for value_name in data[0].get("valueNames") or []
+        ) != [0, 1]:
+            return None
+
+        return self.__get_cooling_data_by_register_name(REG_ACTIVATE_COOLING)
 
     def __get_data_from_group_by_register_name(self, group: list, register_name: str):
         if group is None:
@@ -799,6 +892,13 @@ class ThermiaHeatPump:
         )
 
     @property
+    def cooling_operational_time(self):
+        return get_dict_value_or_none(
+            self.__get_operational_time_data_by_register_name(REG_OPER_TIME_COOLING),
+            "value",
+        )
+
+    @property
     def auxiliary_heater_1_operational_time(self):
         return get_dict_value_or_none(
             self.__get_operational_time_data_by_register_name(REG_OPER_TIME_IMM1),
@@ -881,6 +981,43 @@ class ThermiaHeatPump:
     @property
     def hot_water_boost_switch_state(self) -> Optional[int]:
         return self.__group_hot_water["hot_water_boost_switch"]
+
+    ###########################################################################
+    # Cooling data
+    ###########################################################################
+
+    @property
+    def cooling_switch_state(self) -> Optional[int]:
+        value = get_dict_value_or_none(self.__get_cooling_switch_data(), "value")
+        return int(value) if value is not None else None
+
+    @property
+    def cooling_temperature(self):
+        return get_dict_value_or_none(
+            self.__get_cooling_data_by_register_name(REG__COOLING_DESIRED_TEMP),
+            "value",
+        )
+
+    @property
+    def cooling_min_temperature_value(self):
+        return get_dict_value_or_none(
+            self.__get_cooling_data_by_register_name(REG__COOLING_DESIRED_TEMP),
+            "minValue",
+        )
+
+    @property
+    def cooling_max_temperature_value(self):
+        return get_dict_value_or_none(
+            self.__get_cooling_data_by_register_name(REG__COOLING_DESIRED_TEMP),
+            "maxValue",
+        )
+
+    @property
+    def cooling_temperature_step(self):
+        return get_dict_value_or_none(
+            self.__get_cooling_data_by_register_name(REG__COOLING_DESIRED_TEMP),
+            "step",
+        )
 
     ###########################################################################
     # Alarm data

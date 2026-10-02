@@ -68,6 +68,7 @@ To execute the example file, first run `pip install -r requirements.txt` to inst
 | `compressor_operational_time` | Compressor operational time in hours |
 | `heating_operation_time` | Heating operational time in hours |
 | `hot_water_operational_time` | Hot water operational time in hours |
+| `cooling_operational_time` | Cooling operational time in hours |
 | `auxiliary_heater_1_operational_time` | Auxiliary heater 1 operational time in hours |
 | `auxiliary_heater_2_operational_time` | Auxiliary heater 2 operational time in hours |
 | `auxiliary_heater_3_operational_time` | Auxiliary heater 3 operational time in hours |
@@ -85,6 +86,13 @@ To execute the example file, first run `pip install -r requirements.txt` to inst
 | Hot Water data | |
 | `hot_water_switch_state` | Int value indicating the Heat Pump hot water switch state (0 or 1) or None if not available |
 | `hot_water_boost_switch_state` | Int value indicating the Heat Pump hot water boost switch state (0 or 1) or None if not available |
+| --- | --- |
+| Cooling data | |
+| `cooling_switch_state` | Int value indicating the Heat Pump cooling switch state (0 or 1) or None if not available |
+| `cooling_temperature` | Desired cooling temperature in Celsius or None if not available |
+| `cooling_min_temperature_value` | Minimum desired cooling temperature value possible to set |
+| `cooling_max_temperature_value` | Maximum desired cooling temperature value possible to set |
+| `cooling_temperature_step` | Step value for desired cooling temperature setting |
 | --- | --- |
 | Historical data | |
 | `historical_data_registers` | List of available registers to use for historical data fetching |
@@ -104,6 +112,8 @@ To execute the example file, first run `pip install -r requirements.txt` to inst
 | `set_operation_mode()` | Set the operation mode for the Heat Pump |
 | `set_hot_water_switch_state()` | Set the hot water switch state to 0 (off) or 1 (on) for the Heat Pump |
 | `set_hot_water_boost_switch_state()` | Set the hot water boost switch state to 0 (off) or 1 (on) for the Heat Pump |
+| `set_cooling_switch_state()` | Set the cooling switch state to 0 (off) or 1 (on) for the Heat Pump |
+| `set_cooling_temperature()` | Set the desired cooling temperature for the Heat Pump, within `cooling_min_temperature_value` and `cooling_max_temperature_value` |
 | --- | --- |
 | Fetch historical data | |
 | `get_historical_data_for_register()` | Fetch historical data by using register name from `historical_data_registers` together with start_time and end_time of the data in Python datatime format. Returns list of dictionaries which contains data in format `{ "time": datetime, "value": int }` |
