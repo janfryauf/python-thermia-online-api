@@ -32,7 +32,8 @@ To execute the example file, first run `pip install -r requirements.txt` to inst
 | `id` | Unique ID of the Heat Pump Thermia generates |
 | `is_online` | Boolean value indicating if the Heat Pump is online or not |
 | `model` | Model of the Heat Pump |
-| `last_online` | DateTime string indicating the last time the Heat Pump was online |
+| `last_online` | DateTime string indicating the last time the Heat Pump was online, in the installation's local time without a time zone |
+| `last_online_utc` | Timezone-aware UTC `datetime` of the last time the Heat Pump reported to Thermia Online, or None if not available |
 | `has_indoor_temperature_sensor` | Boolean value indicating if the Heat Pump has an indoor temperature sensor |
 | `indoor_temperature` | Indoor temperature in Celsius, if `has_indoor_temperature_sensor` is False, this value is the same as `heat_temperature` |
 | `is_outdoor_temp_sensor_functioning` | Boolean value indicating if the Heat Pump has an outdoor temperature sensor |
