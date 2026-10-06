@@ -37,6 +37,7 @@ print("\n")
 
 print("Heat pump model: " + str(heat_pump.model))
 print("Heat pump model id: " + str(heat_pump.model_id))
+print("Heat pump last online (UTC): " + str(heat_pump.last_online_utc))
 
 print("\n")
 

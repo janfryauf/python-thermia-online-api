@@ -1,6 +1,7 @@
 from collections import ChainMap
-from datetime import datetime
+from datetime import datetime, timezone
 import logging
+import re
 import sys
 from ..utils.utils import pretty_json_string_except
 
@@ -668,6 +669,29 @@ class ThermiaHeatPump:
     @property
     def last_online(self):
         return get_dict_value_or_none(self.__info, "lastOnline")
+
+    @property
+    def last_online_utc(self) -> Optional[datetime]:
+        # self.__info has lastOnline in the installation's local time without a
+        # time zone, self.__device_data has the same moment in UTC
+        last_online = get_dict_value_or_none(self.__device_data, "lastOnline")
+
+        if last_online is None:
+            return None
+
+        # Only accept the format seen so far (optionally with Z), so that a value
+        # with a time zone offset is rejected instead of silently misread
+        match = re.fullmatch(
+            r"(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})(\.\d+)?Z?", str(last_online)
+        )
+
+        if match is None:
+            self._LOGGER.debug("Unexpected lastOnline format: " + str(last_online))
+            return None
+
+        return datetime.strptime(match.group(1), DATETIME_FORMAT).replace(
+            tzinfo=timezone.utc
+        )
 
     @property
     def model(self):
